@@ -1,0 +1,39 @@
+name: "Build and deploy Docker image to AWS ECR"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: minhnguyet_backend
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend 
+          
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }} # Địa chỉ của server
+          username: ${{ secrets.AWS_USERNAME }} # Username để login vào server
+          key: ${{ secrets.AWS_SSH_KEY }} # Private key để login vào server
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend:latest
+            docker rm -f minhnguyet_backend &>/dev/null
+            docker run -it -d --name minhnguyet_backend -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend:latest
