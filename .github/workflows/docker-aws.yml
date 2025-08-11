@@ -44,4 +44,4 @@ jobs:
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend:latest
             docker rm -f minhnguyet_backend &>/dev/null
-            docker run -it -d --name minhnguyet_backend -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend:latest
+            docker run -it -d --name minhnguyet_backend -p 4000:4000 ${{ secrets.DOCKER_USERNAME }}/minhnguyet_backend:${{ steps.meta.outputs.tags[0] }}
